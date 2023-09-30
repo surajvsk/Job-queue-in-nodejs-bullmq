@@ -1,8 +1,9 @@
 // app.js
+
 const express = require('express');
 const app = express();
 const routes = require('./routes');
-
+const { jobQueueMiddleware } = require('./jobQueueMiddleware');
 app.use(express.json());
 
 // Apply the job queue middleware to the desired route
@@ -11,6 +12,7 @@ app.get('/data', jobQueueMiddleware, (req, res) => {
   // Example: Query the database, perform calculations, etc.
   
   // Retrieve the data and send the response
+  console.log('jobId::::::::', req.jobId)
   const data = { /* Your fetched data */ };
   res.json(data);
 });

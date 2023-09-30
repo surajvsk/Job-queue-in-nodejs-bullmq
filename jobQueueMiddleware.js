@@ -1,4 +1,3 @@
-// jobQueueMiddleware.js
 const Queue = require('bull');
 
 const jobQueue = new Queue('tasks');

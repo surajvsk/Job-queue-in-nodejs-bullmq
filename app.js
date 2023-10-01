@@ -13,9 +13,11 @@ const {
 app.use(express.json());
 
 // Apply the job queue middleware to the desired route
-app.get('/data', jobQueueMiddleware, async  (req, res) => {
+app.post('/data', jobQueueMiddleware, async  (req, res) => {
   // Process the job queue task and fetch data from the database
   // Example: Query the database, perform calculations, etc.
+
+  console.log('req.body:::::::::', req.body)
 
   let final_qp_uploaded = await new Promise((resolve, reject) => {
     let absoulte_path =  `./doc/NEW.docx`;
@@ -54,16 +56,14 @@ app.get('/data', jobQueueMiddleware, async  (req, res) => {
     return "done"`;
 
     // console.log('psscript::::::::::::', psscript)
-    let doc_to_pdf = `$Files=Get-ChildItem './docs/*.docx'
-    $Word = New-Object -ComObject Word.Application
-    Foreach ($File in $Files) {
-        $Doc = $Word.Documents.Open($File.FullName)
-        $Name=($Doc.FullName).replace('docx', '${req.jobId}.pdf')
-        $Doc.SaveAs($Name, 17)
-        $Doc.Close()
-        $Word.Quit()
-        return "done"
-    }`;
+    let doc_to_pdf = `$Files = Get-ChildItem './docs/*.docx'
+$Word = New-Object -ComObject Word.Application
+Foreach ($File in $Files) {
+    $Doc = $Word.Documents.Open($File.FullName)
+    $Name=($Doc.FullName).replace('docx', 'pdf')
+    $Doc.SaveAs($Name, 17)
+    $Doc.Close()
+}`;
     console.log('doc_to_pdf:::::::',doc_to_pdf)
     exec(doc_to_pdf, {
         'shell': 'powershell.exe'
@@ -75,7 +75,7 @@ app.get('/data', jobQueueMiddleware, async  (req, res) => {
             console.log('stdout:::::oye balle', stdout)
             return resolve(pdf_path)
         } else {
-            console.log('stderrr else :::::::::::')
+            console.log('stderrr else :::::::::::', stderr)
             return reject(stderr);
         }
     })
@@ -88,7 +88,8 @@ app.get('/data', jobQueueMiddleware, async  (req, res) => {
   const data = { /* Your fetched data */ };
 
   res.json({
-    job_id: req.jobId
+    job_id: req.jobId,
+    req:req.body
   });
 });
 

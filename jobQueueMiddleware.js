@@ -5,6 +5,7 @@ const jobQueue = new Queue('tasks');
 const jobQueueMiddleware = async (req, res, next) => {
   try {
     const { method, query, body } = req;
+    console.log(':::::::',body)
 
     // Determine the task data based on the request method
     let taskData;
@@ -27,4 +28,25 @@ const jobQueueMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = { jobQueueMiddleware, jobQueue };
+
+const getJobStatus = async (jobId) => {
+
+  try {
+    const job = await jobQueue.getJob(jobId);
+    console.log('JOB::::::::::::::::', job)
+    if (!job) {
+      return { error: 'Job not found' };
+    }
+
+    if (job.finished()) {
+      const result = await job.returnvalue;
+      return { result };
+    }
+    // Job is still in progress
+    return { status: 'Job in progress' };
+  } catch (error) {
+    return { error: 'An error occurred' };
+  }
+};
+
+module.exports = { jobQueueMiddleware, jobQueue, getJobStatus };

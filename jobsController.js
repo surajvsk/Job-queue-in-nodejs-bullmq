@@ -3,10 +3,8 @@ const { jobQueue } = require('./jobQueueMiddleware');
 
 const getJobStatus = async (req, res) => {
   const { jobId } = req.params;
-
   try {
     const job = await jobQueue.getJob(jobId);
-
     if (!job) {
       return res.status(404).json({ error: 'Job not found' });
     }
@@ -15,7 +13,6 @@ const getJobStatus = async (req, res) => {
       const result = await job.returnvalue;
       return res.json({ result });
     }
-
     // Job is still in progress
     return res.json({ status: 'Job in progress' });
   } catch (error) {

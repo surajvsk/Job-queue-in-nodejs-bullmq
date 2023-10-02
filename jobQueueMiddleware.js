@@ -1,6 +1,17 @@
 const Queue = require('bull');
 
-const jobQueue = new Queue('tasks');
+// const jobQueue = new Queue('tasks');
+const maxConcurrentJobs = 15;
+// Set the average processing time for a file in milliseconds (e.g., 5000 milliseconds or 5 seconds)
+const averageProcessingTime = 30000;
+
+
+// Calculate a reasonable duration based on the average processing time
+const duration = averageProcessingTime * maxConcurrentJobs;
+const jobQueue = new Queue('tasks', {
+  limiter: { max: maxConcurrentJobs, duration }, // Set the concurrency limit
+});
+
 
 const jobQueueMiddleware = async (req, res, next) => {
   try {
